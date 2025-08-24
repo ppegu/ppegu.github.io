@@ -18,6 +18,7 @@
   --radius: 14px;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 2px 12px rgba(0, 0, 0, 0.25);
   --header-h: 64px; /* mobile header height for offsets */
+  --skill-icon-size: 28px;
 }
 
 * {
@@ -347,6 +348,93 @@ body {
 }
 .project {
   overflow: hidden;
+  position: relative; /* anchor for absolute avatar on desktop */
+  --avatar-size: 56px;
+}
+@media (max-width: 640px) {
+  .project {
+    --avatar-size: 44px;
+  }
+}
+.project-card__avatar {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  min-width: var(--avatar-size); /* reserve space to prevent shift */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(
+    120% 120% at 30% 20%,
+    rgba(96, 165, 250, 0.25),
+    rgba(167, 139, 250, 0.18) 55%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32), 0 2px 10px rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(96, 165, 250, 0.12);
+  color: #dbeafe; /* icon/text color via currentColor */
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+  will-change: transform;
+}
+/* Desktop: top-left badge */
+@media (min-width: 641px) {
+  .project-card__avatar {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
+    animation: projFloat 8s ease-in-out infinite;
+  }
+}
+/* Mobile: inline above title */
+@media (max-width: 640px) {
+  .project__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .project__body .project-card__avatar {
+    position: static;
+    margin: 6px 0 10px;
+  }
+}
+.project-card__avatar:hover,
+.project-card__avatar:focus-visible {
+  transform: scale(1.04);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.38), 0 4px 14px rgba(0, 0, 0, 0.24),
+    0 0 0 4px rgba(96, 165, 250, 0.18);
+}
+.project-card__avatar--text {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.project-card__avatar svg {
+  width: 70%;
+  height: 70%;
+  display: block;
+}
+@keyframes projFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-card__avatar {
+    transition: none;
+    animation: none !important;
+  }
+}
+
+/* Optional: add top padding to content if you prefer avoiding visual overlap with the thumb */
+@media (min-width: 641px) {
+  .project__body {
+    padding-top: 20px;
+  }
 }
 .project__thumb {
   height: 140px;
@@ -425,6 +513,46 @@ body {
 .tags--lg span {
   padding: 10px 14px;
 }
+
+/* Skills icons */
+@media (max-width: 640px) {
+  :root {
+    --skill-icon-size: 24px;
+  }
+}
+.skill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.skill__icon {
+  width: var(--skill-icon-size);
+  height: var(--skill-icon-size);
+  min-width: var(--skill-icon-size);
+  color: var(--muted);
+  transition: transform 180ms ease-out, filter 180ms ease-out,
+    color 180ms ease-out;
+}
+.skill__label {
+  color: inherit;
+}
+/* Hover/focus tint and glow */
+.tags span:hover .skill__icon,
+.tags span:focus-within .skill__icon {
+  color: var(--accent);
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 0.25rem rgba(96, 165, 250, 0.35));
+}
+@media (prefers-reduced-motion: reduce) {
+  .skill__icon {
+    transition: none;
+  }
+}
+/* Responsive grid suggestion: keep as-is but allow auto-fit when needed */
+/* If desired, uncomment below to auto-fit skills; keeping original layout intact. */
+/*
+.skills { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+*/
 
 /* Checklist */
 .checklist {
