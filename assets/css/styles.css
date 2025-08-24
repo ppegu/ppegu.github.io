@@ -209,10 +209,14 @@ body {
 /* Hero */
 .hero {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); /* prevent overflow from pushing siblings */
   gap: 40px;
   align-items: center;
   min-height: 68vh;
+}
+.hero__content,
+.hero__visual {
+  min-width: 0; /* allow grid items to shrink inside the grid */
 }
 .hero__title {
   margin: 0 0 12px;
@@ -225,9 +229,11 @@ body {
   background-clip: text;
   color: transparent;
 }
+/* keep subtitle readable width and allow wrapping */
 .hero__subtitle {
   margin: 0 0 22px;
   color: #cbd5e1;
+  max-width: 72ch;
 }
 .hero__cta {
   display: flex;
@@ -249,6 +255,17 @@ body {
 .metric__label {
   font-size: 12px;
   color: var(--muted);
+}
+
+/* Summary typewriter */
+.typewriter {
+  display: inline; /* participate in text flow */
+  white-space: normal; /* allow wrap */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  /* remove caret border to avoid multi-line artifacts; chip typing keeps caret */
+  border-right: 0;
+  animation: none;
 }
 
 .hero__visual {
@@ -506,11 +523,13 @@ body {
 }
 /* Summary typewriter */
 .typewriter {
-  display: inline-block;
-  border-right: 2px solid currentColor;
-  white-space: nowrap;
-  overflow: hidden;
-  animation: caret 0.9s steps(1) infinite;
+  display: inline; /* participate in text flow */
+  white-space: normal; /* allow wrap */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  /* remove caret border to avoid multi-line artifacts; chip typing keeps caret */
+  border-right: 0;
+  animation: none;
 }
 @keyframes caret {
   50% {
@@ -562,7 +581,8 @@ body {
     pointer-events: none;
     max-height: 0;
     overflow: hidden;
-    transition: transform 0.25s ease, opacity 0.2s ease, visibility 0.2s ease, max-height 0.25s ease;
+    transition: transform 0.25s ease, opacity 0.2s ease, visibility 0.2s ease,
+      max-height 0.25s ease;
     flex-direction: column;
     align-items: flex-start;
     z-index: 9; /* keep under sticky header */
