@@ -503,6 +503,14 @@ body {
   overflow: hidden;
   animation: caret 0.9s steps(1) infinite;
 }
+/* Summary typewriter */
+.typewriter {
+  display: inline-block;
+  border-right: 2px solid currentColor;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: caret 0.9s steps(1) infinite;
+}
 @keyframes caret {
   50% {
     border-color: transparent;
