@@ -213,6 +213,7 @@
   };
 
   // Skills icons via CDN (Devicon preferred, Simple Icons fallback)
+  const dataUri = (svg) => `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   const skillIconSource = (name) => {
     const key = (name || "").toLowerCase().trim();
     // Map skill names to Devicon slugs and Simple Icons slugs
@@ -256,10 +257,7 @@
       kubernetes: { dev: ["kubernetes", "original"], si: "kubernetes" },
       docker: { dev: ["docker", "original"], si: "docker" },
       "ci/cd": { dev: null, si: "githubactions" },
-      "github actions": {
-        dev: ["githubactions", "original"],
-        si: "githubactions",
-      },
+      "github actions": { dev: ["githubactions", "original"], si: "githubactions" },
       jenkins: { dev: ["jenkins", "original"], si: "jenkins" },
 
       // AI & Data
@@ -267,8 +265,8 @@
       "gpt-3.5/4": { dev: null, si: "openai" },
       "gpt-3.5": { dev: null, si: "openai" },
       "gpt-4": { dev: null, si: "openai" },
-      ollama: { dev: null, si: null },
-      langchain: { dev: null, si: null },
+      ollama: { dev: null, si: "ollama" },
+      langchain: { dev: null, si: "langchain" },
       rag: { dev: null, si: null },
       "vector search": { dev: null, si: null },
 
@@ -288,17 +286,32 @@
     const entry = map[key];
     const buildDev = (slug, variant = "original") =>
       `https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${slug}/${slug}-${variant}.svg`;
-    const buildSI = (slug) => `https://cdn.simpleicons.org/${slug}`; // currentColor
+    // Use a readable light color for dark background
+    const siColor = "e5e7eb";
+    const buildSI = (slug) => `https://cdn.simpleicons.org/${slug}/${siColor}`;
+
+    // Inline SVG data fallbacks for concepts without official icons
+    const stroke = "#e5e7eb";
+    const sw = 1.8;
+    const rounded = 'stroke-linecap="round" stroke-linejoin="round"';
+    const dataFallbacks = {
+      ollama: dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${sw}" ${rounded}><path d="M12 3a7 7 0 00-7 7v4l7 7 7-7v-4a7 7 0 00-7-7z"/></svg>`),
+      langchain: dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${sw}" ${rounded}><path d="M7 12a5 5 0 015-5h1a5 5 0 015 5 5 5 0 01-5 5h-1a5 5 0 01-5-5z"/><path d="M9 12a3 3 0 003-3M12 15a3 3 0 003-3"/></svg>`),
+      rag: dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${sw}" ${rounded}><rect x="4" y="5" width="14" height="16" rx="2"/><path d="M8 9h8M8 13h6M8 17h8"/></svg>`),
+      "vector search": dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${sw}" ${rounded}><circle cx="10" cy="10" r="5"/><path d="M14.5 14.5L20 20"/></svg>`),
+      blockchain: dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${sw}" ${rounded}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>`),
+      microservices: dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${sw}" ${rounded}><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M7 12h3M14 12h3"/></svg>`),
+      automation: dataUri(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${sw}" ${rounded}><path d="M12 8a4 4 0 100 8 4 4 0 000-8z"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>`),
+    };
 
     if (entry) {
       // Prefer Simple Icons for specific brands for higher reliability/contrast
       const preferSI = new Set(["aws"]);
       if (preferSI.has(key) && entry.si) {
         const src = buildSI(entry.si);
-        const fallback = entry.dev
-          ? buildDev(entry.dev[0], entry.dev[1])
-          : null;
-        return { src, fallback };
+        const fallback = entry.dev ? buildDev(entry.dev[0], entry.dev[1]) : null;
+        const data = dataFallbacks[key] || null;
+        return { src, fallback, data };
       }
       const src = entry.dev
         ? buildDev(entry.dev[0], entry.dev[1])
@@ -306,9 +319,12 @@
         ? buildSI(entry.si)
         : null;
       const fallback = entry.dev && entry.si ? buildSI(entry.si) : null;
-      return { src, fallback };
+      const data = dataFallbacks[key] || null;
+      return { src, fallback, data };
     }
-    return { src: null, fallback: null };
+    // Unknown: try a concept fallback if we have one
+    const data = dataFallbacks[key] || null;
+    return { src: null, fallback: null, data };
   };
 
   const enhanceSkills = () => {
@@ -318,22 +334,34 @@
       if (!label) return;
 
       // Icon image element
-      const { src, fallback } = skillIconSource(label);
+      const { src, fallback, data } = skillIconSource(label);
       const icon = document.createElement("img");
       icon.className = "skill__icon";
       icon.setAttribute("loading", "lazy");
       icon.setAttribute("decoding", "async");
       icon.setAttribute("alt", "");
       icon.setAttribute("aria-hidden", "true"); // decorative; label provides text
-      if (src) icon.src = src;
-
-      if (fallback) {
-        icon.onerror = () => {
-          // prevent infinite loop
-          icon.onerror = null;
-          icon.src = fallback;
-        };
+      if (src) {
+        icon.src = src;
+      } else if (fallback) {
+        icon.src = fallback;
+      } else if (data) {
+        icon.src = data;
       }
+
+      // Error handling chain: src -> fallback -> data
+      icon.onerror = () => {
+        if (fallback && icon.src !== fallback) {
+          icon.src = fallback;
+          return;
+        }
+        if (data) {
+          icon.onerror = null;
+          icon.src = data;
+        } else {
+          icon.onerror = null;
+        }
+      };
 
       // Wrap label and icon into a .skill container
       const wrapper = document.createElement("span");
