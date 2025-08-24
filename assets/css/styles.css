@@ -349,11 +349,11 @@ body {
 .project {
   overflow: hidden;
   position: relative; /* anchor for absolute avatar on desktop */
-  --avatar-size: 56px;
+  --avatar-size: 64px;
 }
 @media (max-width: 640px) {
   .project {
-    --avatar-size: 44px;
+    --avatar-size: 48px;
   }
 }
 .project-card__avatar {
@@ -405,14 +405,29 @@ body {
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.38), 0 4px 14px rgba(0, 0, 0, 0.24),
     0 0 0 4px rgba(96, 165, 250, 0.18);
 }
-.project-card__avatar--text {
+.project-card__avatar--text,
+.project-card__avatar--label {
   font-weight: 800;
   letter-spacing: 0.5px;
 }
 .project-card__avatar svg {
-  width: 70%;
-  height: 70%;
+  width: 76%;
+  height: 76%;
   display: block;
+}
+/* Label fallback variant: show project name prominently instead of an icon */
+.project-card__avatar--label {
+  width: auto;
+  height: auto;
+  min-height: var(--avatar-size);
+  padding: 8px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+  max-width: calc(100% - 24px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  line-height: 1;
 }
 @keyframes projFloat {
   0%,
@@ -447,6 +462,13 @@ body {
 }
 .project__body {
   padding: 16px 16px 8px;
+}
+.project__body h3 {
+  margin: 0 0 10px;
+  transition: transform 150ms ease;
+}
+.project:hover .project__body h3 {
+  transform: translateY(-1px);
 }
 .project__meta {
   display: flex;
@@ -529,9 +551,12 @@ body {
   width: var(--skill-icon-size);
   height: var(--skill-icon-size);
   min-width: var(--skill-icon-size);
-  color: var(--muted);
+  object-fit: contain;
+  display: inline-block;
+  filter: none; /* use source colors by default */
   transition: transform 180ms ease-out, filter 180ms ease-out,
-    color 180ms ease-out;
+    opacity 180ms ease-out;
+  opacity: 0.95;
 }
 .skill__label {
   color: inherit;
@@ -539,9 +564,9 @@ body {
 /* Hover/focus tint and glow */
 .tags span:hover .skill__icon,
 .tags span:focus-within .skill__icon {
-  color: var(--accent);
   transform: scale(1.05);
-  filter: drop-shadow(0 0 0.25rem rgba(96, 165, 250, 0.35));
+  filter: drop-shadow(0 0 0.25rem rgba(96, 165, 250, 0.45));
+  opacity: 1;
 }
 @media (prefers-reduced-motion: reduce) {
   .skill__icon {
