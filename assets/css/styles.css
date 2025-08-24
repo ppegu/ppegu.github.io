@@ -283,9 +283,44 @@ body {
   position: relative;
 }
 .avatar {
-  width: 140px;
-  height: 140px;
+  width: clamp(128px, 18vw, 220px);
+  height: auto; /* preserve aspect ratio */
+  aspect-ratio: 1 / 1;
   display: block;
+  border-radius: 50%; /* circular */
+  object-fit: cover;
+  object-position: center;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25),
+    0 0 0 3px rgba(96, 165, 250, 0.12);
+  transform: translateZ(0); /* promote to its own layer */
+  animation: avatarFade 600ms ease-out both,
+    floatY 7s ease-in-out infinite 600ms;
+  transition: transform 160ms ease;
+  backface-visibility: hidden;
+}
+.card--glass:hover .avatar {
+  animation-play-state: paused; /* pause float while hovering */
+  transform: translateY(-2px) scale(1.03);
+}
+@keyframes avatarFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 .chip {
   position: absolute;
@@ -544,6 +579,40 @@ body {
 }
 .tilt:hover {
   transform: perspective(800px) rotateX(3deg) rotateY(-4deg);
+}
+
+/* About section card refinements */
+#about .card {
+  padding: 22px; /* balanced inner spacing for readability */
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), 0 2px 10px rgba(0, 0, 0, 0.18);
+  transition: transform 160ms ease, box-shadow 200ms ease, background 200ms ease,
+    border-color 200ms ease;
+}
+#about .card h3 {
+  margin: 0 0 8px;
+}
+#about .card p {
+  margin: 0;
+}
+#about .card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.22);
+}
+#about .card:focus-within {
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px var(--ring), 0 10px 28px rgba(0, 0, 0, 0.32);
+}
+/* keep grid spacing consistent */
+#about .grid.grid--2 {
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  #about .card {
+    padding: 18px; /* consistent, slightly tighter on small screens */
+  }
 }
 
 /* Responsive */
