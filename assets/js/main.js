@@ -251,7 +251,7 @@
       websocket: { dev: null, si: null },
 
       // Cloud & DevOps
-      aws: { dev: ["amazonwebservices", "original"], si: "amazonaws" },
+      aws: { dev: ["amazonwebservices", "original-wordmark"], si: "amazonaws" },
       azure: { dev: ["azure", "original"], si: "microsoftazure" },
       kubernetes: { dev: ["kubernetes", "original"], si: "kubernetes" },
       docker: { dev: ["docker", "original"], si: "docker" },
@@ -291,6 +291,15 @@
     const buildSI = (slug) => `https://cdn.simpleicons.org/${slug}`; // currentColor
 
     if (entry) {
+      // Prefer Simple Icons for specific brands for higher reliability/contrast
+      const preferSI = new Set(["aws"]);
+      if (preferSI.has(key) && entry.si) {
+        const src = buildSI(entry.si);
+        const fallback = entry.dev
+          ? buildDev(entry.dev[0], entry.dev[1])
+          : null;
+        return { src, fallback };
+      }
       const src = entry.dev
         ? buildDev(entry.dev[0], entry.dev[1])
         : entry.si
